@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Minie AI Chat</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Minie AI Chat</h2>
+    <div id="chatBox" class="chat-box">
+      <div class="bubble minie">👋 Hello! Ask me anything.</div>
+    </div>
+    <form id="chatForm">
+      <input id="userInput" placeholder="Type your message..." required />
+      <button>Send</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatBox');
+
+    const BACKEND_URL = 'https://minieai-backend.onrender.com'; // replace with your Render backend URL
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      const userBubble = document.createElement('div');
+      userBubble.className = 'bubble user';
+      userBubble.textContent = text;
+      chatBox.appendChild(userBubble);
+
+      const aiBubble = document.createElement('div');
+      aiBubble.className = 'bubble minie';
+      aiBubble.textContent = 'Thinking...';
+      chatBox.appendChild(aiBubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: text })
+        });
+        const data = await res.json();
+        aiBubble.textContent = data.answer || 'No response 🤔';
+      } catch (err) {
+        aiBubble.textContent = '⚠️ Connection error, please retry.';
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  </script>
+</body>
+</html>
